@@ -1,0 +1,46 @@
+1. 源码位置：5005行 -- 5014行
+    function stringifyObject (value) {
+        var res = '';
+        for (var key in value) {
+            if (value[key]) {
+            if (res) { res += ' '; }
+            res += key;
+            }
+        }
+        return res
+    }
+    函数功能：将对象转换为字符串,以空格连接返回。
+    函数的参数：value(对象类型)
+    返回值：转换后的对象。
+分析：这个方法首先声明一个空字符串res，再通过 for in 遍历这个对象，判断res是否为空，若为空(对象的第一个属性)，res+=key, 
+     若不为空(不是第一个属性)，res+="空格" 后，再res+=key,遍历结束后，返回res.   
+
+2.源码位置：5096行 -- 5109行
+    function query (el) {
+        if (typeof el === 'string') {
+            var selected = document.querySelector(el);
+            if (!selected) {
+            "development" !== 'production' && warn(
+                'Cannot find element: ' + el
+            );
+            return document.createElement('div')
+            }
+            return selected
+        } else {
+            return el
+        }
+    }
+    函数功能：判断是否能通过el的值找到文档中的DOM对象。
+    函数的参数：el(值为选择器)
+    返回值：查询到的DOM对象
+    分析：首先判断el的值的类型是否为字符串，如果不是，返回el的值，函数结束。如果是，以el的值为参数查询页面中的DOM元素，
+            如果没有，控制台提示：'Cannot find element: ' + el并返回一个空div，如果有，返回这个DOM对象。
+
+
+
+
+
+                各位面试官好，很高兴能来贵公司面试，我来自于郑州，本人工作两年有余，经验丰富，业务能力强。
+                能熟练使用css+HTML布局、熟悉原生js和jQuery，熟悉vue、react、Angela这些主流框架，
+                在上一家公司主要做电商类网站和后台管理系统的前端开发工作，我性格比较外向，
+                能和同事很好的相处，如果能进入贵公司工作，我会努力为公司创造最大化的效益

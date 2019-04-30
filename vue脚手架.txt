@@ -1,0 +1,45 @@
+1. 安装Vue2.0 脚手架
+    .1 npm i vue-cli -g  //全局安装，只需一次
+    .2 项目构建
+        官方模板 ：vue init webpack project     //包含完整结构，语法检查麻烦
+        简洁 ：vue init webpack-simple project // 只包括vue，其他依赖需要自己配置，体积较小
+     .3 项目启动  ：   npm run dev
+     .4 项目打包  ：   npm run build
+     单文件组件  css拥有作用域，scoped属性可规定当前css只作用于自己的组件，不影响其他
+     插件安装 :axios
+        npm install axios —-save-dev
+        哪个文件需要使用，就在该文件的js中 导入
+        import axios from ‘axios’
+2. Vue  ui框架
+    Element  －－pc  (算是目前支持vue2.0最好的ui框架)
+    Mintui
+    vant
+    Vux  
+    Framework7
+    iview
+3.安装 Vue3.0脚手架 
+    .1 npm install -g @vue/cli
+    .2 项目创建
+        vue create project_name  (选择第二个自己配置依赖，上下键挑选，空格选中，enter确认) 
+4. Vue 2.0脚手架目录解析
+    .1 build文件夹 --- webpack相关配置
+    .2 config文件夹 --- vue基本配置文件(例如：端口监听、打包输出等相关配置)
+    .3 src文件夹 --- 资源文件夹
+        assets文件夹 --- 静态资源(css,js文件可以放在这里)
+        components文件夹 --- 定义组件模板
+        views文件夹(手动新建) --- 视图 
+        router文件夹-index.js --- 配置路由规则
+        app.vue --- id为APP的实例化对象加载的主页面视图
+        main.js --- 主配置文件(初始化Vue对象)
+    .4 static文件夹 ---  静态资源(图片、json数据之类)
+    .5 babelrc文件 --- ES6语法编译配置，将ES6代码转换成浏览器识别的代码
+    .6 .gitignore文件 --- git上传需要忽略的文件格式
+    .7 package.json文件 --- 项目基本信息(项目开发所需模块、依赖的名称及版本信息)
+    .8 index.html --- 启动编译的文件
+
+
+ 
+
+ 
+ 
+        

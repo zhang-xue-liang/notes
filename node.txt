@@ -1,0 +1,75 @@
+1.nodejs
+    js运行环境，用c++编写
+    它使用了事件驱动，非阻塞I/O模型，使其轻量又高效
+    特点：.1异步非阻塞I/O：当用户发起一个请求时，对应的回调函数立即执行，主进程继续执行
+         .2事件与回调函数：通过监听事件的状态变化，做出相应的操作
+         .3单线程:主线程是单线程，按照编码顺序一步步执行代码
+         .4跨平台：能在不同操作系统上运行
+2.包管理工具：npm yarn package.json
+   .1 npm常见命令：.1 install：安装 
+                    npm install *** -g  全局安装 (只需要安装一次)
+                    苹果系统：sudo npm i *** -g
+                    依赖安装    npm i *** --save-dev /D /S
+                    
+                .2uninstall 卸载
+                    npm uninstall *** -g
+                .3update 更新
+                .4search 搜索
+        特点：速度较慢，一个接一个的安装，已经安装过的，会重复下载安装，会打印所有的安装信息；
+    .2 yarn
+        yarn add
+        特点:速度较快，同步安装，已经安装过的不会重复安装，安装信息以表情展示；        
+    .3package.json：定义了一个项目所需要的各种依赖，以及项目的配置信息
+3.模块
+    .1 内置模块/原生模块 ：可以直接使用 
+        例如： http: 搭建服务器
+            fs: 读取文件 
+            url: 对文件进行解析
+            path: 管理路径
+            events：事件的发布和监听
+            object-assign 
+    .2依赖模块：所有需要依赖安装的模块
+        例如：gulp git
+    .3自定义模块
+        如果自定义模块和server.js在同级下，引入自定义模块时要加 ./
+4.模块化开发
+    .1 AMD  异步加载规范
+        依赖前置 -- 提前引入  require.js
+    .2 CMD  标准通用规范
+        依赖后置 -- 按需引入 sea.js
+    .3 commonjs 
+        谷歌提出的规范  核心：模块的接受与暴露
+5.自动化构建工具——构建项目
+    .1 gulp
+        配置文件：gulpfile.js
+    .2 webpack        
+        配置文件：webpack.config.js
+        loader加载器：把浏览器不识别的语言转换成浏览器识别的语言，对模块进行合并管理
+6.搭建服务器
+var http = require("http");
+var fs = require("fs");
+var path = require("path");
+var url = require("url");
+var mine = require("./mine").types;
+http.createServer((res,req) =>{
+    if(req.url != "/favoicon.ico"){
+        var pathname = url.path(req.url).pathname;
+        var realpath = path.join("资源文件夹名",pathnme);
+        var ext = path.extname(relpath);
+        ext = ext?ext.slice(1):"unknow";
+        fs.exists(realpath,(data) =>{
+            if(!data){
+                req.writeHead(404,{"content-type" : "text/plain"});
+                req.write("路径错误");
+                req.end()
+            }else{
+                fs.readFile(realpath,(err,result) =>{
+                    req.writeHead(200,{"content-type" : ext});
+                    req.write(result);
+                    req.end();
+                })
+                
+            }
+        })
+    }
+}).listen(3000);

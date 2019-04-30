@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="css/01style.css"/>
+		<link rel="stylesheet" type="text/css" href="font/iconfont.css" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<script>
+         window.onload = function(){
+         /*720代表设计师给的设计稿的宽度，你的设计稿是多少，就写多少;100代表换算比例，这里写100是
+                           为了以后好算,比如，你测量的一个宽度是100px,就可以写为1rem,以及1px=0.01rem等等*/
+         getRem(640,100)
+         };
+         window.onresize = function(){
+         getRem(640,100)
+         };
+         function getRem(pwidth,prem){
+           var html = document.getElementsByTagName("html")[0];
+           var oWidth = document.body.clientWidth || document.documentElement.clientWidth;
+            html.style.fontSize = oWidth/pwidth*prem + "px";
+}
+       </script>
+	</head>
+	<body>
+		<header>
+			<span>三</span>
+			<div>
+				<a>热点</a>
+				<a>关注</a>
+			</div>
+		</header>
+		<section>
+			<div>
+			<nav>
+				<a href="#">足球现场</a>
+				<a href="#">足球现场</a>
+				<a href="#">足球现场</a>
+			</nav>
+			</div>
+			<article>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+				<figure>
+					<figcaption><img src="img/pic01.jpg"/></figcaption>
+					<span>小丸子啊小丸子！</span>
+				</figure>
+			</article>
+		</section>
+		<footer>
+			<figure>
+				<span class="iconfont icon-shouye"></span>
+				<figcaption>首页</figcaption>	
+			</figure>
+			<figure>
+				<span class="iconfont icon-fangdajing"></span>
+				<figcaption>发现</figcaption>
+			</figure>
+			<div>
+				<span class="iconfont icon-weibiaoti1"></span>
+			</div>
+			<figure>
+				<span class="iconfont icon-wode2"></span>
+				<figcaption>我的</figcaption>
+			</figure>
+			<figure>
+				<span class="iconfont icon-tuichu"></span>
+				<figcaption>退出</figcaption>
+			</figure>
+		</footer>
+		
+		
+	</body>
+</html>

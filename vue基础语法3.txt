@@ -1,0 +1,524 @@
+1.组件   组件的本质就是对象
+    组件是可复用的 Vue 实例，且带有一个名字
+    .1 全局注册组件
+        Vue.component('v-header',Vue.extend({   // Vue.extend 创建组件
+            template:'<div>我是组件模版</div>'   // template  组件模板
+        }))
+	
+        Vue.component('v-con',{                 // Vue.extend 可省略
+            template:'<h2>hello</h2>'
+        })
+    全局注册的组件可以用在其被注册之后的任何 (通过 new Vue) 新创建的 Vue 根实例，同样，全局注册组件
+    也要在vue实例创建前声明
+    .2 私有组件
+        1. 在body中声明组件模板，组件模板中只能有一个根节点
+            <template id="foot">
+                <div>
+                    <h1>template模版</h1>
+                    <h2>{{title}}</h2>
+                    <button @click="tap()">事件</button>
+                </div>
+            </template>
+        2. 在vue实例中进行私有组件的注册
+            components:{
+                'v-foot':{
+                    template:'#foot',
+                    data(){             // 一个组件的 data 选项必须是一个函数,其返回值为一个对象
+                        return{
+                            title:'template'
+                        }
+                    },
+                    methods:{
+                        tap(){
+                            this.title='hi'
+                        }
+                    }
+                }
+            }
+2. 全局组件嵌套
+    <div id="out">
+        <v-parent></v-parent>       // 父组件
+    </div>
+
+    // 父组件模板
+    <template id="parent">
+        <div>
+            <h1>父组件</h1>
+            <hr/>
+            <v-child></v-child>    // 将子组件嵌套到父组件中
+        </div>
+    </template>
+    //子组件模板
+    <template id="child">
+        <div>
+            <h2>子组件</h2>
+        </div>
+    </template>
+
+    // 组件的注册
+        // 父组件注册
+            Vue.component{
+                "v-parent",     //组件的名称
+                {
+                    tempalte:"#parent"
+                }
+            }
+        // 子组件的注册
+            Vue.component{
+                "v-child",
+                {
+                    template:"#child"
+                }
+            }
+        
+        var vm = new Vue({
+            el:"#out"
+        })
+3.私有组件的嵌套
+    <div id="out">
+        <v-parent></v-parent>
+    </div>
+    //父组件模板
+        <template id="parent">
+            <div>
+                <h1>父组件---{{tit}}</h1>
+                <v-child></v-child>
+            </div>
+        </template>
+    // 子组件模板
+        <template id="child">
+            <div> 
+                <h2>子组件---{{tit}}</h2>
+            </div>
+        </template>
+
+    // 组件的注册
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-parent":{
+                   template:"#parent",
+                   data(){
+                       return {                 //返回值为对象
+                           tit:"我是父组件"
+                       }
+                   },
+                    components:{              // 将子组件的注册嵌套进父组件中 
+                        "v-child":{
+                            template:"#child",
+                            data(){
+                                return {
+                                    tit:"我是子组件"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+4. 父组件---子组件 的传值
+    在子组件的组件标签上绑定自定义属性名,值为父组件需要传递的数据
+    子组件内部通过props属性 数组形式 接收属性名 ,模版内部加载属性名渲染展示父组件数据
+    <div id="out">
+        <v-parent></v-parent>
+    </div>
+    //父组件模板
+        <template id="parent">
+            <div>
+                <h1>我是父组件</h1>
+                <p>{{str}}</p>
+                <button @click="send()">发送数据到子组件</button>
+                <hr>
+                <v-child :a = "str1"></v-child> //在子组件的组件标签上绑定自定义属性名,值为父组件需要传递的数据
+                                                    属性值为变量，属性前加 :
+            </div>
+        </template>
+    //子组件模板
+        <template id="child">
+            <div>
+                <h2>子组件</h2>
+                <p>子组件接收的数据---{{a}}</p>
+            </div>
+        </template>
+
+    // 注册组件
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-parent":{
+                    template:"#parent",
+                    data(){
+                        return {
+                            str:"我是父组件的数据"，
+                            str1:""
+                        }
+                    },
+                    methods:{
+                        send(){
+                            this.str1 = this.str;
+                        }
+                    },
+                    components:{
+                        "v-child":{
+                            template:"#child",
+                            props:["a"]             //数组形式 接收属性名
+                        }
+                    }
+                }
+            }
+        }) 
+5. 子组件---父组件 的传值
+    在子组件组件标签上绑定自定义事件，子组件内部通过$emit给该事件推送数据，
+    父组件内部通过事件所绑定的函数参数进行数据接收
+    $emit 和 $on 是通过类对象EventEmitter的原型方法：emit和on 改造得到的
+    EventEmitter 是通过nodejs的events依赖得到的 var EventEmitter=require('events');
+     
+    <div id="out">
+        <v-parent></v-parent>
+    </div>
+    // 父组件的模板
+        <template id="parent">
+            <div>
+                <h1>我是父组件</h1>
+                <p>子组件的数据---{{tit}}</p>
+                <hr>
+                <v-child @toparent="tap($event)"></v-child> //不确定实参，用#event代替
+            </div>
+        </template>
+    // 子组件的模板
+        <template id="child">
+            <div>
+                <h2>我是子组件</h2>
+                <P>{{str}}</P>
+                <button @click="send()"></button>
+            </div>
+        </template>
+    // 组件的注册
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-parent":{
+                    template:"#parent",
+                    data(){
+                        return {
+                            tit:""
+                        }
+                    },
+                    methods:{
+                        tap(msg){
+                            this.tit = msg
+                        }
+                    },
+                    components:{
+                        "v-child":{
+                            template:"#child",
+                            data(){
+                                return {
+                                    str:"我是子组件数据"
+                                }
+                            },
+                            methods:{
+                                send(){
+                                    this.$emit("toparent",this.str)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+6.兄弟组件(平行组件)的传值
+    通过空vue对象进行$emit $on方法调用,进行事件数据推送以及接收
+    <div id="out">
+        <v-a></v-a>
+        <hr>
+        <v-b></v-b>
+        <hr>
+        <v-c></v-c>
+    </div>
+    // a组件的模板
+        <template id="a">
+            <div>
+                <h1>我是A组件</h1>
+                <p>{{str}}</p>
+                <button @click="send()">发送数据给C组件</button>
+            </div>
+        </template>
+    // b组件的模板
+        <template id="b">
+            <div>
+                <h1>我是B组件</h1>
+                <p>{{str}}</p>
+                <button @click="send()">发送数据给C组件</button>
+            </div>
+        </template>
+    // c 组件的模板
+        <template id="c">
+            <div>
+                <h1>我是C组件</h1>
+                <p>A组件的数据---{{stra}}</p>
+                <p>B组件的数据---{{strb}}</p>
+            </div>
+        </template>
+    // 组件的注册
+        var vm1 = new Vue({})
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-a":{
+                    template:"#a",
+                    data(){
+                        return {
+                            str:"我是A组件的数据"
+                        }
+                    }，
+                    methods:{
+                        send(){
+                            vm1.$emit("isa",this.str)
+                        }
+                    }
+                },
+                "v-b":{
+                    template:"#b",
+                    data(){
+                        return {
+                            str:"我是B组件的数据"
+                        }
+                    }，
+                    methods:{
+                        send(){
+                            vm1.$emit("isb",this.str)
+                        }
+                    }
+                },
+                "v-c":{
+                    template:"v-c",
+                    data(){
+                        return {
+                            stra:"",
+                            strb:""
+                        }
+                    },
+                    methods:{
+                        var _this = this;
+                        vm1.$on("isa",function(msg){
+                            _this.stra = msg;
+                        });
+                        vm1.$on("isb",function(msg){
+                            _this.strb = msg;
+                        })
+                    }
+                }
+            }
+        })
+7. 父组件操作子组件 --- $refs 
+    <div id="out">
+        <v-parent></v-parent>
+    </div>
+    // 父组件模板
+        <template id="parent">
+            <div>
+                <h1>父组件</h1>
+                <button @click="tap()">获取子组件</button>
+                <hr>
+                <v-child ref="child"></v-child>
+            </div>
+        </template>
+    // 子组件模板
+        <template id="child">
+            <div>
+                <h1>子组件</h1>
+                <p>{{str}}</p>
+                <button @click="tap()">事件</button>
+            </div>
+        </template>
+    // 组件的注册
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-parent":{
+                    template:"#parent",
+                    data(){
+                        return {
+                            str:"我是父组件数据"
+                        }
+                    },
+                    methods:{
+                        tap(){
+                            this.$refs.child.tap()
+                        };
+                    },
+                    components:{
+                        "v-child":{
+                            template:"#child",
+                            data(){
+                                return {
+                                    str:"我是子组件数据"
+                                }
+                            },
+                            methods:{
+                                tap(){
+                                    alert("子组件事件")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+8. 子组件操作父组件 --- $refs 
+    <div id="out">
+        <v-parent></v-parent>
+    </div>
+    // 父组件模板
+        <template id="parent">
+            <div>
+                <h1>父组件</h1>
+                <button @click="tap()">事件</button>
+                <hr>
+                <v-child></v-child>
+            </div>
+        </template>
+    // 子组件模板
+        <template id="child">
+            <div>
+                <h1>子组件</h1>
+                <p>{{str}}</p>
+                <button @click="tap()">获取父组件</button>
+            </div>
+        </template>
+    // 组件的注册
+        var vm = new Vue({
+            el:"#out",
+            components:{
+                "v-parent":{
+                    template:"#parent",
+                    data(){
+                        return {
+                            str:"我是父组件数据"
+                        }
+                    },
+                    methods:{
+                        tap(){
+                            alert("父组件事件")
+                        };
+                    },
+                    components:{
+                        "v-child":{
+                            template:"#child",
+                            data(){
+                                return {
+                                    str:"我是子组件数据"
+                                }
+                            },
+                            methods:{
+                                tap(){
+                                    this.$parent.tap();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+9.$nextTick
+    使用$refs获取dom    
+    nextTick里面的代码会在DOM更新后执行---mounted函数中执行
+    <div id="out">
+		<h1 ref="tit">{{tit}}</h1>
+	</div>
+
+    var vm=new Vue({
+		el:'#out',
+		data:{
+			tit:'hello'
+		},
+		mounted(){
+			this.tit='hi'
+			var _this=this;
+			this.$nextTick(function(){
+				console.log(_this.$refs.tit.innerHTML)
+			})
+		}
+	})
+10.使用slot发布内容
+    Slot标签添加 属性 <slot name="uls">
+    内容可通过  slot属性值查找是否显示默认<ul slot="uls">
+
+    <div id="out">
+		<h1>slot</h1>
+		<v-header>
+			<ul slot="uls">
+				<li>1111</li>
+				<li>1111</li>
+				<li>1111</li>
+				<li>1111</li>
+			</ul>
+		</v-header>
+	</div>
+	// 组件模板	
+	<template id="header">
+		<div>
+			<h1>hello</h1>
+			<slot name='uls'>当组件标签内部没有数据的时候显示我</slot>
+		</div>
+	</template>
+
+    var vm=new Vue({
+		el:'#out',
+		components:{
+			'v-header':{
+				template:'#header'
+			}
+		}
+	})
+11.自定义指令
+    .1钩子函数
+        bind: 只调用一次，指令第一次绑定到元素时调用，用这个钩子函数可以定义一个在绑定时执行一次的初始化动作。
+        inserted: 被绑定元素插入父节点时调用。(bind与该生命周期钩子函数作用十分类似)
+        update: 被绑定元素所在的模板更新时调用，而不论绑定值是否变化。通过比较更新前后的绑定值，可以忽略不必要的模板更新。
+        componentUpdated: 被绑定元素所在模板完成一次更新周期时调用。
+	<div id="out">
+		<h1 v-color>自定义指令</h1>
+		<p v-color>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Id magnam cum quia non modi neque voluptas est consequuntur distinctio quisquam deserunt recusandae. Corporis fugiat esse accusamus harum nulla doloribus repellat!</p>
+		<p v-bac="col">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aperiam nemo provident quo ipsa voluptate ab pariatur voluptatum a quisquam atque alias iste maiores ullam dolorem eligendi tempore temporibus. Ipsum deserunt.</p>
+		<p v-col="cols">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maxime quod consequatur molestias dicta atque totam illo asperiores autem perferendis optio. Non nobis alias repellat quis possimus velit architecto dicta aspernatur!</p>	
+		<button @click="tap()">修改数据</button>
+	</div>
+    // 全局自定义指令
+    Vue.directive('color',{     // 第一个参数表示指令的名字，调用时用 v-指令的名字
+		inserted:function(el){  // 第二个参数是一个对象，对应的回调函数的参数(el),表示当前绑定自定义指令的那个元素
+			el.style.color='red'
+		}
+	})
+
+    // 局部自定义指令
+    var vm=new Vue({
+		el:'#out',
+		data:{
+			col:'orange',
+			cols:'red'
+		},
+		directives:{
+			'bac':{                     // 指令的名字
+				bind:function(el,a){    // 钩子函数和对应的回调，参数el表示绑定指令的元素，a是一个对象(binding)
+					el.style.color=a.value  // value表示指定的绑定值，即指令调用时等号后面的值
+					console.log(a.value)
+				},
+				update(el,a){            // 页面更新时执行这个钩子函数
+					el.style.color=a.value
+				}
+			},
+			'col':function(el,a){
+				el.style.color=a.value
+			}
+		},
+		methods:{
+			tap(){
+				this.cols='blue'
+			}
+		}
+	})
+12.过渡
+    Vue 提供了 transition 的封装组件，在下列情形中，可以给任何元素和组件添加 entering/leaving 过渡
+    

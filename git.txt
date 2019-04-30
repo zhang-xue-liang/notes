@@ -1,0 +1,30 @@
+1.常见的git命令
+.1 git init git初始化：在被管理的文件夹操作
+.2 git add 将文件添加到版本库
+.3 git commit将文件提交到版本库
+.4 git status(辅助命令)：查看版本库被管理的文件和工作区的文件(正在写的文件)的区别(查看工作区的状态)
+    modified:被修改的文件
+    Untracked files:未被追踪的文件
+    新建  type null>.gitignore 文件此文件用来添加被忽略的文件(将被忽略的文件的文件名写入。gitignore内)。然后将.gitignore提交到版本库
+ .5 git diff 文件名 (辅助命令) 查看修改的内容 
+ .6 git log 显示从最近到最远的提交日志
+ .7 git reset --hard HEAD^ 回退到上一个版本，HEAD表示当前版本，HEAD^表示上一个版本，HEAD^^表示上上个版本，HEAD~100表示上100个版本
+    gti reset --hard commit的提交ID 通过git log 可以查看   
+ .8 git reflog 用来记录每一条命令
+ .9 工作区：本地电脑的文件夹 
+    隐藏的 .git文件夹是版本库(不算工作区)，版本库内最重要的就是成为stage的暂存区，还有git自动创建的第一个分支master，以及指向master的指针HEAD
+ .10 git commit 只负责把暂存区的修改提交到版本库，如果有修改没有增加到暂存区，git commit不会把这个修改提交都版本库，需要再次git add才能提交到版本库
+ .11 git diff HEAD --文件名 查看工作区和版本库最新版本的区别
+ .12 git checkout --文件名  让文件回到最近一次 git add或 git commit时的状态
+ .13 git reset HEAD<文件名>可以把暂存区的修改撤销掉，重新放回工作区
+ .14 git rm 文件名 然后 git commit -m "***"  :从版本库删除某个文件
+ 
+ 2.添加远程库
+  .1登录GitHub,在右上角找到"Creat a new repo",创建一个新的仓库
+  .2创建 SSH Key 在用户主目录下看看有没有.ssh文件夹，如果有，看里面有没有 id_rsa和id_rsa.pub这两个文件。如果有
+  可直接执行下一步；如果没有，在window下 git bash here , 创建SSH Key
+      ssh-keygen -t rsa -C "username"
+   .3登录GitHub，打开“Account settings”，“SSH Keys”页面，然后，点“Add SSH Key”，填上任意Title，在Key文本框里粘贴id_rsa.pub文件的内容，点“Add Key”，你就应该看到已经添加的Key。
+   .4在版本库所在文件夹，执行命令
+      git remote add origin git@github.com:zhang-xue-liang / add.git
+      git push -u origin master

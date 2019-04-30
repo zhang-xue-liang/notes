@@ -1,0 +1,130 @@
+//引入gulp模块
+const gulp = require("gulp");
+//引入gulp插件
+//gulp的插件都是gulp-****的形式
+const connect = require("gulp-connect");
+const sass = require("gulp-sass");
+const concat = require("gulp-concat");
+const sourcemaps = require("gulp-sourcemaps");
+//将合并的js文件进行压缩
+const uglify = require("gulp-uglify");
+//将压缩后的js文件重命名，并保留压缩前的js文件
+const rename = require("gulp-rename");
+//将ES6转换成ES5
+const babel = require("gulp-babel");
+//压缩图片
+const imagemin = require("gulp-imagemin");
+
+//1.若安装最新版本的gulp，在创建任务时，是以下格式，否则会报错
+//async，await表示异步操作的方式
+	gulp.task("hello",async()=>{
+		await console.log("hello word!")
+	})
+//若安装其他版本的gulp，首先要在命令行输入cnpm show gulp versions 查看可供安装的版本信息;然后安装低版本gulp：cnpm install gulp@3.9.1 --save-dev
+	gulp.task("hello",()=>{
+		console.log("hello word!")
+	})
+	
+	
+//2.default:默认执行的任务名,执行时直接在命令行输入gulp回车；同样，若在命令行输入gulp回车，而又没有定义的default则会报错
+	/*gulp.task("default",()=>{
+		console.log("default");
+	})*/
+//用default可以一次执行多个任务，将“default”任务的回调函数换成一个数组，数组里面放任务名（字符串），任务名之间用“，”隔开
+	//gulp.task("default",["hello"]);
+	
+	
+//3.gulp.src():帮助我们找到要处理的文件，然后pipe(),去处理这些文件。pipe(),可以理解为管道，每个管道可以指定它的功能，再使用gulp.dest(),方法把处理好的文件放到指定的地方。
+// 3.1 copy文件
+	
+	//copy  .html
+	gulp.task("copyIndex",()=>{
+		gulp.src("index.html").pipe(gulp.dest("dist"))
+		.pipe(connect.reload());
+	});
+	
+	//copy .img  **表示递归拷贝，可以取到文件夹内的所有内容（包括目标文件夹内的文件夹）
+	gulp.task("copyImg",()=>{
+		gulp.src("img/**")
+		.pipe(imagemin())//压缩图片
+		.pipe(gulp.dest("dist/img"));
+	});
+	//只拷贝某种格式的img
+//	gulp.task("copyImg",()=>{
+//		gulp.src("img/*.{jpg}")
+//		.pipe(gulp.dest("dist/******"));
+//	});
+	//拷贝不同文件夹里的文件
+	gulp.task("data",()=>{
+		gulp.src(["json/*.json","xml/*.xml"])
+		.pipe(gulp.dest("dist/data"));
+	});
+	//排除文件拷贝
+	gulp.task("data",()=>{
+		gulp.src(["xml/*.xml","json/*.json","!json/b.json"])
+		.pipe(gulp.dest("dist/data"));
+	});
+	
+	
+//4.多个任务一起执行，用“default”也可以实现
+//	gulp.task("build",["copyIndex","copyImg","data"],()=>{
+//		console.log("构建完成");
+//	});
+
+
+//5.侦测文件变化
+//	gulp.task("watch",()=>{
+//		gulp.watch("index.html",["copyIndex"]);
+//	});
+	//侦测多个文件变化
+	gulp.task("watch",()=>{
+		gulp.watch(["*.html","js/*.js","sass/*.scss"],
+		["copyIndex","sass","concat"]);
+	});
+	
+//6.gulp-connect  搭建本地服务
+	//命令行写入：cnpm install gulp-connect --sasve-dev
+gulp.task("server",()=>{
+	connect.server({
+		root:"dist",//执行任务时，在dist文件夹里找
+		livereload:true//是否实时更新
+	})
+});
+//7.gulp-sass 将源文件的scss转换成css文件
+	gulp.task("sass",()=>{
+		gulp.src("sass/*.scss")
+		.pipe(sourcemaps.init())//将scss文件与css文件形成关联
+		.pipe(sass({outputStyle:"compressed"}))//参数可以设置转换后的输出格式
+		.pipe(sourcemaps.write())
+		.pipe(gulp.dest("dist/css"));
+	});
+	
+	
+//8.gulp-concat  将源文件的js合并之后拷贝到dist
+	gulp.task("concat",()=>{
+		gulp.src(["js/a.js","js/b.js"])
+		.pipe(concat("main.js"))
+		.pipe(uglify())//将合并的js文件进行压缩
+		.pipe(rename("main.min.js"))//压缩后的重命名
+		.pipe(gulp.dest("dist/js"))
+	});
+
+
+//9.gulp-babel  将ES6转换成ES5之后拷贝到dist，在安装gulp-babel前需要先安装环境  cnpm install babel-cli --save-dev  
+cnpm install babel-preset-es2015 --save-dev
+//出现Cannot find module '@babel/core'错误，把babel装回7.0.1版本：cnpm install gulp-babel@7.0.1
+	gulp.task("babel",()=>{
+		gulp.src("js/app.js")
+		.pipe(babel({
+			"presets":["es2015"]
+		}))
+		.pipe(gulp.dest("dist/js"))
+	});
+
+
+
+
+gulp.task("build",["copyIndex","sass","concat","babel"],()=>{
+		console.log("构建完成!");
+	});
+gulp.task("default",["server","watch"]);

@@ -1,0 +1,125 @@
+1.什么是Vue？
+    Vue.js（读音 /vjuː/, 类似于 view）是一个构建数据驱动的 web 界面的渐进式框架。Vue.js 的目标是通过尽可能简单的 API 实现响应的数据绑定和组合的视图组件。
+
+    Vue.js借鉴了Angular以及React的一些核心思想，综合各自的长处进行了操作以及性能等方面的优化，进而打造出一款性能更优，学习更容易的MVVM框架。
+
+    它的作者是：尤雨溪
+2.vue对比angularjs
+    1、vue在设计之初参考了很多angularjs的思想
+    2、vue相对比与angular比较简单
+    3、 vue相对比与angular比较小巧，运行速度快
+    4、 vue与angular数据绑定都可以用｛｛｝｝
+    5、vue指令用v－xxx   angularjs用ng－xxx
+    6、vue数据放在data对象里面，angular数据绑定到$scope对象上
+3.vue对比react
+    1、vue与react都使用 virtual DOM
+    2、vue与react都提供了组件化的视图组件
+    3、 vue与react将注意力集中保持在核心库，有丰富的插件库
+    4、react使用jsx渲染页面，vue使用更简单的模版
+    5、vue比react运行速度更快
+4.vue基础语法
+    .1每个 Vue.js 应用都是通过构造函数 Vue 创建一个 Vue 的根实例 启动的
+        Var vm=new Vue({})
+        基础属性：
+                el:获取执行vue的dom元素－初始化范围
+                data ： 存储数据
+                methods ：执行的方法
+    .2绑定数据
+        {{}} 或者 v-text=“”      只能绑定纯文本
+            <h2 v-text="title"></h2>  <h2>{{"hello vue"}}</h2>
+        绑定html   angular中 ng-bind-html   vue中   v-html
+            <h2 v-html="title"></h2>
+        表达式 在{{}}中  +-*/  直接可用   三木运算一样可用
+            <h1>{{a>5?'hello':'hi'}}----哈哈哈哈</h1>
+    .3事件绑定
+        v-on:click=“”      或者    @click＝“”
+        绑定事件  －－事件中有event对象  函数参数为  $event
+            <div v-text="str"></div>
+            <button v-on:click="tap($event)">事件</button>
+            methods:{
+			tap(e){
+				this.str='hello'
+			}
+		} 
+        操作数据  通过this操作
+    .4其他指令
+        .1 v-for=“item in list” 循环  item循环到的数组值
+                <li v-for="item in arr">{{item}}</li>
+        .2 v-for=“(item,key) in list”  key循环到的下标index
+                <li v-for="(item,i) in arr">{{i}}----{{item}}</li>
+        .3 v-model=“”  表单元素value 不可直接{{}}获取，需在vue初始化设置一下(ipt需在data中先声明)
+                <input type="text" v-model="ipt" />-->
+                <input type="checkbox" v-model="ipt" />
+        .4 v-if  布尔值   为true  代表节点显示 
+           V-if 与 v-else-if v-else 可以构成判断
+                <p v-if="a>10">当数字a大于10的时候显示我</p>
+                <p v-else-if="a>5&&a<10">当数字a大于5小于10的时候显示我</p>
+                <p v-else>当数字a小于5的时候显示我</p>
+        .5 V-show布尔值   为true  代表节点设置了display:none属性 无v-hide (不要任意猜测)
+                <p v-show="false">hello</p>
+        .6 V-once 一次渲染
+                <h2 v-once="">{{str}}</h2>
+    .5 行间样式设置
+        .1 v-bind:style=“{ color: activeColor, fontSize: fontSize + ‘px’ }”
+        data: {
+                    activeColor: 'red',
+                    fontSize: 30
+                }
+        v-bind:style的对象语法十分直观——看着非常像 CSS，其实它是一个JavaScript对象
+        .2 数组样式形式设置
+            v-bind:style=“[styleObjectA, styleObjectB]”
+            data: {
+                    styleObjectA: {
+                        color: 'red'
+                    },
+                    styleObjectB: {
+                        fontSize: '30px'
+                    }
+                }
+    .6 类名设置
+        .1 v-bind:class=“{‘class-a’:isa,‘class-b’:isb}”
+            isa    isb  值为true  添加相应类名
+                          为false  不添加类名
+        .2 对象形式设置
+            <div :class="classobj"></div>
+            classobj:{
+                active:true,
+                'class-a':true,
+                'class-b':true
+            }
+    .7绑定属性
+         v-bind:id=“data内的属性值”     或者    :id=“data内的属性值”
+         （src   title  class   name等属性写法一样）
+            <p :style="{'color': col}">Lorem ipsum dolor sit amet, </p>
+            <p :style="[stya,styb]">Lorem ipsum dolor sit amet,</p>
+            <p :class="{'classA':cla}">类名</p>
+		    <p :class="classobj">类名22</p> 
+5.数据双向绑定原理
+    vue.js 是采用数据劫持结合发布者-订阅者模式的方式，通过Object.defineProperty()来劫持各个属性的setter，getter，在数据变动时发布消息给订阅者，触发相应的监听回调。
+    具体步骤：
+    第一步：需要observe的数据对象进行递归遍历，包括子属性对象的属性，都加上 setter和getter这样的话，给这个对象的某个值赋值，就会触发setter，那么就能监听到了数据变化
+
+    第二步：compile解析模板指令，将模板中的变量替换成数据，然后初始化渲染页面视图，并将每个指令对应的节点绑定更新函数，添加监听数据的订阅者，一旦数据有变动，收到通知，更新视图
+
+    第三步：Watcher订阅者是Observer和Compile之间通信的桥梁，主要做的事情是:1、在自身实例化时往属性订阅器(dep)里面添加自己2、自身必须有一个update()方法3、待属性变动dep.notice()通知时，能调用自身的update()方法，并触发Compile中绑定的回调，则功成身退。
+
+    第四步：MVVM作为数据绑定的入口，整合Observer、Compile和Watcher三者，通过Observer来监听自己的model数据变化，通过Compile来解析编译模板指令，最终利用Watcher搭起Observer和Compile之间的通信桥梁，达到数据变化 -> 视图更新；视图交互变化(input) -> 数据model变更的双向绑定效果 
+6.计算属性  放在computed:{//函数}  效率高   methods设置效率低
+
+    1.在模板中表达式非常便利，但是它们实际上只用于简单的操作。
+
+    2.模板是为了描述视图的结构。在模板中放入太多的逻辑会让模板过重且难以维护。这就是为什么 Vue.js 将绑定表达式限制为一个表达式。如果需要多于一个表达式的逻辑，应当使用计算属性。
+            
+    在 Vue.js 中，你可以通过 computed 选项定义计算属性
+
+
+
+
+
+
+
+
+
+ 
+
+

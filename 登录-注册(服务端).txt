@@ -1,0 +1,101 @@
+1.在views文件夹内的 index.ejs 搭建登录-注册页面,(登录成功后，应出现退出登录，登录-注册消失，通过查询服务器中的session判断登录状态)
+2.在routes文件夹内的 index.js 为index.ejs配置路由
+    router.get('/', function(req, res, next) {
+        res.render('index', { username:req.session.username });
+    });
+3.设置session
+    .1在主配置文件 app.js 内引入session依赖：var session=require('express-session')
+    .2在路由挂载之前进行配置：app.use(session({
+                                secret: 'recommend 128 bytes random string', 
+                                cookie: { maxAge: 20 * 60 * 1000 },//存放的时间
+                                resave: true,
+                                saveUnintialized: true
+                            }))
+4.在views文件夹内新建 register.ejs 搭建注册页面,当发起ajax交互时，密码应该加密(md5)
+    .1引入MD5
+    .2  $(".register").click(function(){
+        let password = md5($("#password").val());
+        $.ajax({
+            type: "post",
+            url: "/users/register",
+            data: {
+                username:$('#username').val(),
+                password:password
+            },
+            dataType: "json",
+            success: function (data) {
+              alert(data.msg);
+              if(data.code==200){
+                location.href='/login'
+              }
+            }
+        });
+      })
+5.在routes文件夹内的 index.js 为register.ejs配置路由
+    router.get('/register', function(req, res, next) {
+        res.render('register', {  });
+    });
+6.在routes文件夹内的 users.js 配置注册接口
+    router.post('/register',(req,res)=>{
+    let username=req.body.username;
+    let password=req.body.password;
+    mongodb.connect(db_str,(err,database)=>{
+      database.collection('info',(err,coll)=>{
+        coll.find({username:username}).toArray((err,data)=>{
+          if(data.length>0){
+            res.json({code:300,msg:'用户名已存在'})
+            database.close()
+          }else{
+            coll.insert({username:username,password:password},()=>{
+              res.json({code:200,msg:'注册成功'})
+              database.close()
+            })
+          }
+        })
+      })
+    })
+  })
+7.在views文件夹内新建 login.ejs 搭建登录页面,当发起ajax交互时，密码应该加密(md5)
+    .1引入MD5
+    .2 $(".login").click(function(){
+        let password = md5($("#password").val());
+        $.ajax({
+            type: "post",
+            url: "/users/login",
+            data: {
+                username:$('#username').val(),
+                password:password
+            },
+            dataType: "json",
+            success: function (data) {
+              alert(data.msg);
+              if(data.code==200){
+                location.href='/'
+              }
+            }
+        });
+      })
+8.在routes文件夹内的 index.js 为login.ejs配置路由
+    router.get('/login', function(req, res, next) {
+        res.render('login', {  });
+    });
+9.在routes文件夹内的 users.js 配置登录接口
+    router.post('/login',(req,res)=>{
+	let username=req.body.username;
+	let password=req.body.password;
+	mongodb.connect(db_str,(err,database)=>{
+		database.collection('info',(err,coll)=>{
+			coll.find({username:username,password:password}).toArray((err,data)=>{
+				if(data.length>0){
+					req.session.username=data[0].username;
+					res.json({code:200,msg:"登陆成功"})
+					database.close()					
+				}else{
+					res.json({code:404,msg:"用户名或者密码错误"})
+					database.close()
+				}
+			})
+		})
+	})
+})
+

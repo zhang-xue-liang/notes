@@ -1,0 +1,248 @@
+1.mongoDB
+   一个基于分布式储存的数据库。由c++语言编写，旨在为web应用提供可扩展的高性能数据储存解决方案
+    是世界上目前使用最广泛的nosql数据库
+    sql:关系型数据库
+    nosql:not only sql 不仅仅是sql,非关系型数据库
+    特点：高性能、易部署、易使用、储存数据非常方便。
+    优点：.1面向文档储存的数据库(BSON格式数据储存)；
+          .2具有丰富的查询指令；
+          .3具有分片系统
+          .4无模式
+    缺点：.1占用空间非常大
+          .2不支持事务
+          .3目前不维护32位系统
+2.
+    一个MongoDB中可以建立多个数据库，MongoDB的默认数据库是db,该数据库储存在data目录中
+    MongoDB的单个实例可以容纳多个独立的数据库，每一个都有自己的集合和权限，不同的数据库也放置在不同的文件中 
+    数据库命名：通过标识符，一般是utf-8字符串，不能为空，不能是local/admin/config
+3.mongoDB基础指令
+    use dataBase_name  (如果有dataBase_name就使用，没有就是创建)
+    show dbs  获取当前所有数据库
+    db 查询当前所在的数据库
+    db.stats()  查询当前数据库的状态
+    db.dropDatabase()  删除当前数据库
+    db.help()  查询帮助
+    db.version()  获取当前数据库的版本
+    db.dataBase_name.help()  查询指定数据库的帮助
+    db.collection_name.find() 查询当前集合内的信息
+4.
+    新建一个数据库后，show dbs 没有出现这个数据库，因为这个数据库是空的
+    需要写入一个文档集合 info
+    insert 插入数据
+    插入一条数据：db.info.insertOne({"name":"john","age":20})
+    插入多条数据：db.info.insertMany({},{},{}) 或者 db.info.insert({},{},{}) 
+5.mongoDB文档
+    文档是一个键值对({"key":"value"}),即Bson,mongoDB的文档不需要设置相同的字段，并且相同
+    的字段不需要相同的数据类型，这与关系型数据库有很大的区别，也是mongoDB非常突出的特点。
+6.mongoDB集合
+    集合就是mongoDB文档组，类似于关系型数据库中的表格
+    集合存在于数据库中，集合没有固定的结构，可以对集合插入不同格式和类型的数据，通常我们插入
+    集合的数据都有一定的关联性。
+    集合的命名不能是空字符串，不能出现-，不能以0开头，不能以 system,$ 开头。
+
+    db.createCollection(name, {capped: <Boolean>, autoIndexId: <Boolean>, size: <number>, max <number>} )
+    name:集合的名字
+    capped:是否启用集合限制，如果开启需要制定一个限制条件，默认为不启用，这个参数没有实际意义
+    size:限制集合使用空间的大小，默认为没有限制
+    max:集合中最大条数限制，默认为没有限制
+    autoIndexId:是否使用_id作为索引，默认为使用(true或false)
+    size的优先级比max要高
+
+
+常用方法介绍：
+1、一般来说，我们创建集合用db.createCollection(name),如：db.createCollection("log"),创建一个名字为log的集合，没有任何的大小，数量限制，使用_id作为默认索引；
+
+2、限制集合空间的大小：db.createCollection("log",{size:1024})或db.createCollection("log",{capped:true,size:1024}),创建一个名字为log集合，限制它的空间大小为1M，如果超过1M的大小，则会删除最早的记录；
+3、限制集合的最大条数：db.createCollection("log",{max:1024})，创建一个名字为log集合，最大条数为1024条，超过1024再插入数据的话会删除最早的一条记录。这个不能使用capped:true，否则会报错；
+4、即限制最大条数有限制使用空间大小：db.createCollection("log",{size:1024,max:1024})或db.createCollection("log",{capped:true,size:1024,max:1024})，限制集合最大使用空间为1M，最大条数为1024条
+
+7.mongoDB储存的数据类型
+    string 字符串       integer 整型数值        Boolean 布尔值
+    Double 双精度浮点值     Min/Max keys 将一个值与bson(二进制的json)的最低值和最高值相对比
+8.Collection 聚集集合的操作
+   .1创建一个聚集集合：db.creatCollection("info",{size:20,capped:true,max:100})
+    判断集合是否为定容量：db.info.isCappend();
+    .2得到指定名称的聚集集合：db.getCollection("info");
+    .3得到当前数据库的所有聚集集合：db.getCollectionNames();
+    .4显示当前数据库所有聚集集合的状态：db.printCollectionStats();
+    .5删除info集合：db.info.drop();
+9.向集合添加数据
+    插入一条数据：db.info.insertOne({"name":"john","age":20})
+                 db.info.save({"name":"小明","age":30})
+    插入多条数据：db.info.insertMany([{},{},{}]) 或者 db.info.insert([{},{},{}])
+10.修改集合中的数据
+    .1所有数据都添加一个artist: db.info.updateMany({},{$set:{artist:"哈哈"}})；
+    .2修改age为25中的name值： db.info.update({age:25},{$set:{name:"小明"}}，false，true)
+       如果修改的这条数据不存在，第一个参数false表示不添加这条数据，true表示添加这条数据
+       如果修改的数据由重复的，第二个参数true表示符合条件的均修改，false表示只修改第一条
+    .3 db.info.update({name："小红"},{$inc:{age:10}},false,true)
+        表示name为小红的数据的age的值在原来的基础上加10
+    .4 db.info.update({name:"小红"},{$inc:{age:10},$set:{name:"小明"}},false,true)
+        表示name为小红的数据的age的值在原来的基础上加10,并把name的值改为小明
+11.删除集合中的数据
+    .1 db.info.remove({age:10})  删除age为10的所有文档
+       db.info.delete({age:10})
+    .2 db.info.remove({}) 删除所有文档
+12.查询集合中的数据
+    .1查询所有文档  db.info.find()
+    .2查询去重后的数据   db.info.distinct("name")
+    .3查询age为20的记录  db.info.find({"age":20})
+    .4查询age大于20的记录  db.info.find({age:{$gt:20}})
+    .5查询age小于20的记录  db.info.find({age:{$lt:20}})
+    .6查询age大于等于20的记录 db.info.find({age:{$gte:20}})
+    .7查询age小于等于20的记录 db.info.find(age:{$lte:20})
+    .8查询age大于等于10小于等于20的记录 db.info.find({age:{$lte:10,$gte:20}})
+    .9查询name中包含mongo的记录 db.info.find({name:/mongo/})
+    .10查询name中以mongo开头的记录 db.info.find({name:/^mongo/})
+    .11查询指定列name、age数据 db.info.find({},{agr:1,name:1})
+    .12查询指定列name、age数据，age大于25 db.info.find({age:{$gt:25}},{age:1,name:1})
+    .13按照age的值排序
+        升序：db.info.find().sort({age:1})
+        降序：db.info.find().sort({age:-1})
+    .14查询name为小明，age为20的记录 db.info.find({name:"小明"，age:20})
+    .15查询前5记录 db.info.find().limit(5)
+    .16查询10条之后的数据，不包含第10条 db.info.find().skip(10)
+    .17限制数据量/几条数据后 db.info.find().limit(10).skip(5)
+    .18 or查询 db.info.find({$or:[{age:20},{age:25}]})
+    .19 查询第一条数据 db.info.findOne()
+
+
+13.NodeJS连接MongoDB
+    .1在项目中引入MongoDB依赖 npm i mongodb@2 --save-dev
+    .2创建数据库连接服务 var server = mongodb.Server("localhost",27017,{auto_reconnect:true})
+    .3创建数据库对象 var db = mongodb.Db("数据库名",server,{safe:true})
+    .4打开数据库 
+        db.open((err,database)=>{       //打开成功后，返回数据库本身
+            database.collection("info",(err,coll)=>{  //查询成功后，返回该集合
+                //查询所有文档
+                coll.find().toArray((err,data)=>{
+                    console.log(data);   //toArray过滤掉数据库相关冗余信息
+                })
+
+                //增加数据
+                coll.save({name:"***",age:**},()=>{
+                    console.log("success");
+                    database.close();   //关闭数据库
+                })
+
+                //修改数据
+                coll.update({name:"***"},{$set:{name:"***",age:**}},()=>{
+                    console.log("success");
+                    database.close();   //关闭数据库
+                })
+
+                //删除数据
+                coll.remove({name:"***"},()=>{
+                    console.log("success");
+                    database.close();   //关闭数据库
+                })
+            })
+
+            //创建集合
+            database.createCollection("infos",()=>{
+                console.log("success");
+                database.close();   //关闭数据库
+            })
+        })
+        
+
+14.MongoDB与express综合
+    var mongodb = require("mongodb");
+    var server = new mongodb.Server("localhost",27017,{auto_reconnect:true});
+    var db = new mongodb.Db("zz1901",server,{safe:true});
+    var express = require("express");
+    var app = express();
+    db.open((err,database) =>{
+        console.log("successs")
+        database.collection("info",(err,coll) =>{
+            console.log("success")
+            coll.find().toArray((err,data) =>{
+                console.log("success")
+                app.get("/api",(req,res,next) =>{
+                    res.send(data);
+                })
+                app.listen(3000);
+            }); 
+        })
+    })
+    快速创建链接对象
+        Var  mongodb=require(‘mongodb’).MongoClient;
+        Var db_str=“mongodb://localhost:27017/xxxx”
+15.mongooes
+    使用mongooes需要先安装该依赖 npm i nongoose --save-dev
+    辅助我们对MongoDB的数据进行操作
+    .1 mongooes提供的事件
+        var mongoose = require("mongoose");
+        var DB_URL = "mongodb://localhost:27017/database";
+        //链接
+        mongoose.connect(DB_URL);
+        //链接成功
+        mongoose.connection.on("connected",function(){
+            console.log("mongoose connection open to" + DB_URL);
+        });
+        //链接异常
+        mongoose.connection.on("error",function(){
+            console.log("mongoose connection err" + err);
+        });
+        //断开链接
+        mongoose.connection.on("disconnected",function(){
+            console.log("mongoose connection disconnected");
+        });
+        .2 mongoose的核心对象
+            .1 Schema
+                它是一种以文件形式存储的数据库模型骨架，不具备对数据库操作的能力，
+                仅仅只是数据库在程序片段中的一种表现，可以理解为表结构
+            .2 model
+                model模型具有对数据库操作的能力。
+        .3 使用mongoose操作MongoDB数据库
+            var mongoose = require("mongoose");
+            var DB_URL = "mongodb://localhost:27017/database";
+
+            //绑定mongoose事件
+            mongoose.connect(DB_URL);
+            mongoose.connection.on("connected",function(){
+                console.log("mongoose connection open to" + DB_URL);
+            });
+            mongoose.connection.on("error",function(){
+                console.log("mongoose connection err" + err);
+            });
+            mongoose.connection.on("disconnected",function(){
+                console.log("mongoose connection disconnected");
+            });
+
+            //定义数据插入的规范
+            var schema = new mongoose.Schema({
+                name:{type:String,require:true},//require表示是否为必须的
+                age:{type:Number,require:true}
+            })
+
+            //定义模型
+            var Cart = new mongoose.Model("cart",schema)
+            //实际创建的集合名字为：carts
+
+            //创建数据
+            Cart.create({
+                name:"john",
+                age:20
+            },()=>{
+                console.log("创建成功");
+            })
+            //查询
+            Cart.find({},(data)=>{
+                console.log(data);
+            })
+            //修改
+            Cart.update({name:"john"},{$set:{age:21}},()=>{
+                console.log("修改成功");
+            })
+            //删除
+            Cart.remove({name:"john"},()=>{
+                console.log("删除成功");
+            })
+
+
+
+
+
+
+

@@ -1,0 +1,224 @@
+1.事件
+    事件分为冒泡事件和捕获事件。
+    .1函数内部阻止事件冒泡
+        e.cancelBubble=true; 
+        <button @click="zi($event)">子元素</button> 
+        zi(e){
+            e.cancelBubble=true;
+            console.log('子元素事件')
+        }
+    .2 标签内阻止事件冒泡
+        <button @click.stop="zi()">子元素</button>
+    .3 键盘事件  keyup 
+        <input type="text" @keyup="tap()" />
+
+        函数中获取键盘编码keyCode
+        <input type="text" @keyup="tap($event)" />
+        tap(e){
+			console.log(e.keyCode)
+		}
+    .4在标签内直接绑定按键事件
+        @keyup.13=“show()” 
+        @keyup.enter=“show()”
+2.监听
+    第一种写法 vm.$watch(‘监听的变量’,function( newvalue,oldvalue){ })
+
+    第二种写法 直接在vue初始化中通过(写在methods里面)
+    watch{‘监听的变量’:function(newvalue,oldvalue){}}
+3.computed methods watch 的区别
+    computed是基于依赖进行缓存的。用通俗一点的话讲就是，计算属性的触发条件是他的依赖变化了才会重新执行
+
+    methods就像我们写的普通函数一样，需要我们主动去调用才会执行。而不是依赖数据的变换，并且也不需要返回一个结果，
+    可以仅仅执行一个过程。当我们在获取一个数据时需要对一个大的数组进行大量循环才能获取时，那我们选择计算属性，
+    基于依赖进行缓存那将会节省大量的性能消耗。而不是像methods一样每次调用都执行
+
+    watch是侦听一个参数，当这个参数发生变化时影响其他数据的变化。并且可以获得该参数的新值和旧值进行相应的计算
+    watch适合处理的场景是，侦听一个数的变化，当该数据变化，来处理其他与之相关数据的变化（该数据影响别的多个数据）
+
+    computed适合处理的场景是，获得一个值或者结果，该结果受其他的依赖的影响。（一个数据受多个数据影响）
+
+    methods用的是也是最多的，一般的事件绑定，普通函数，请求数据方法都是在methods中处理。
+    然后vue的生命周期函数就是在相应的或者合适的时机调用这些定义好的函数
+4.过滤器(定义在实例创建之前)
+    Vue.filter(‘过滤器名字’,function(value){
+        return	//具体操作
+    })
+
+    Vue2.0自定义过滤器,vue1.0提供内置
+5.axios 
+    Vue2.0引入了axios来获取数据，使用时需要引入axios.js
+    .1 get方式
+        var _this=this;             //如果在回调函数里使用vm的属性，需要在函数外面保存this指向
+        axios({
+            method:'get',           //请求方式用method声明
+            url:'http://localhost:3000/axiosTest',
+            params:{id:'hello'}     //get请求传参用params
+        })
+        .then(function(data){       //请求成功之后的回调函数
+            console.log(data.data)
+        })
+        .catch(function(err){       //请求失败之后的回调函数 
+            console.log(err)
+        })
+    .2 post方式
+        axios({
+            method:'post',
+            headers:{'Content-Type':'application/x-www-form-urlencoded'},   //axios的post请求需要配置headers(处理跨域)
+            url:'http://localhost:3000/axiosTest',
+            data:qs.stringify({     //如果是自己搭建的后台服务器，需要处理data发送的数据，否则后台接收的数据类型不对
+                id:'hello'
+            })
+        })
+        .then(function(data){       //请求成功之后的回调函数      
+            console.log(data.data)
+        })
+        .catch(function(err){       //请求失败之后的回调函数 
+            console.log(err)
+        })
+6.resource
+    .1 vue-resource是Vue.js的一款插件，它可以通过XMLHttpRequest或JSONP发起请求并处理响应。
+    .2 vue-resource特点：
+                    1.体积小
+                    2.支持主流的浏览器
+                    3.支持Promise API和URI Templates
+                    4.支持拦截器
+    .3通过resource请求百度接口的数据
+    var api='https://sp0.baidu.com/5a1Fazu8AA54nxGko9WTAnF6hhy/su?wd=php';
+	var that=this;
+    this.$http.jsonp(api,{
+        jsonp:'cb'
+    })
+    .then(function(data){       //可以跟多个成功回调函数
+        console.log(data.body);
+        that.list=data.body.s;
+    },function(){
+
+    })
+7. fetch
+    fetch('http://jx.xuzhixiang.top/ap/api/productlist.php')
+    .then(function(data){
+        return data.json()
+    })
+    .then(function(data){       //如果有多个成功回调函数，要依次链式书写
+        console.log(data)
+    })
+8.生命周期
+    每个 Vue 实例在被创建时都要经过一系列的初始化过程，例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。
+    同时在这个过程中也会运行一些叫做 生命周期钩子 的函数，我们可以在不同的阶段添加自己的代码。
+
+    所有的生命周期钩子自动绑定 this 上下文到实例中，因此你可以访问数据，对属性和方法进行运算。
+    这意味着 你不能使用箭头函数来定义一个生命周期方法 (例如 created: () => this.fetchTodos())。
+    这是因为箭头函数绑定了父上下文，因此 this 与你期待的 Vue 实例不同， this.fetchTodos 的行为未定义。
+
+     .1 beforeCreate
+        在new一个vue实例后，只有一些默认的生命周期钩子和默认事件，其他的东西都还没创建。在beforeCreate生命周期执行的时候，data和methods中的数据都还没有初始化。
+        不能在这个阶段使用data中的数据和methods中的方法
+        可以在这个阶段添加 loading事件
+    .2 created
+        data 和 methods都已经被初始化好了，实例已完成以下的配置：数据观测(data observer)，属性和方法的运算， watch/event 事件回调。
+        如果要调用 methods 中的方法，或者操作 data 中的数据，最早可以在这个阶段中操作
+        在这个阶段结束 loading事件
+    .3 beforeMount
+        执行到这个钩子的时候，在内存中已经编译好了模板，但是还没有挂载到页面中，此时，页面还是旧的
+        该钩子在服务器端渲染期间不被调用.
+    .4 mounted
+        el 被新创建的 vm.$el 替换，并挂载到实例上去之后调用该钩子。
+        如果 root 实例挂载了一个文档内元素，当 mounted 被调用时 vm.$el 也在文档内。
+        如果我们想要通过插件操作页面上的DOM节点，最早可以在和这个阶段中进行
+        该钩子在服务器端渲染期间不被调用.
+        在这个阶段可以发起后端请求，拿回数据，配合路由钩子做一些事情
+    .5 beforeUpdate
+        这个钩子发生在虚拟 DOM 重新渲染和打补丁之前。页面中的显示的数据还是旧的，data中的数据是更新后的， 
+        页面还没有和最新的数据保持同步
+        该钩子在服务器端渲染期间不被调用。
+        可以在这个钩子中进一步地更改状态，这不会触发附加的重渲染过程。
+    .6 updated
+        由于数据更改导致的虚拟 DOM 重新渲染和打补丁，在这之后会调用该钩子。
+        当这个钩子被调用时，组件 DOM 已经更新，页面显示的数据和data中的数据已经保持同步了，都是最新的,所以现在可以执行依赖于 DOM 的操作。
+        然而在大多数情况下，应该避免在此期间更改状态，因为这可能会导致更新无限循环。
+        该钩子在服务器端渲染期间不被调用。
+    .7 beforeDestroy
+        Vue实例从运行阶段进入到了销毁阶段，
+        这个时候,所有的 data 和 methods, 指令、过滤器等，都是处于可用状态。还没有真正被销毁
+        该钩子在服务器端渲染期间不被调用。
+    .8 destroyed
+        Vue 实例销毁后调用。调用后，Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
+        需要调用Vue实例的 destroy方法 (this.$destroy())
+        该钩子在服务器端渲染期间不被调用。
+9. mixins
+    混入 (mixins) 是一种分发 Vue 组件中可复用功能的非常灵活的方式。混入对象可以包含任意组件选项。当组件使用混入对象时，所有混入对象的选项将被混入该组件本身的选项。
+
+    .1 当组件和混入对象含有同名选项时，这些选项将以恰当的方式混合
+        var mixin = {
+            data.function(){
+                return{
+                  msg:"hello", 
+                  foo:"abc" 
+                }
+            }
+        }
+
+        new Vue({
+            mixins:[mixin],
+            data:function(){
+              return {
+                 msg:"goodbye",
+                 bar:"def" 
+              }  
+            },
+            created:function(){
+                console.log(this.$data)
+            }
+        })
+    .2 同名钩子函数将混合为一个数组，因此都将被调用。另外，混入对象的钩子将在组件自身钩子之前调用
+         var mixin =  {
+             created:function(){
+                 console.log("混入对象的钩子被调用");
+             }
+         }
+
+         new Vue({
+             mixins:[mixin],
+             created:function(){
+                 console.log("组件钩子被调用");
+             }
+         })
+    .3 值为对象的选项，例如 methods, components 和 directives，将被混合为同一个对象。两个对象键名冲突时，取组件对象的键值对。
+        var mixin = {
+            methods:{
+               foo:function(){
+                   console.log("foo");
+               } ,
+               conflicting:function(){
+                   console.log("from mixin")
+               }
+            }
+        }
+
+        var vm = new Vue({
+            mixins:[mixin],
+            methods:{
+                bar:function(){
+                    console.log("bar");  
+                },
+                conflicting:function(){
+                   console.log("from mixin")
+               }
+            }
+        })
+
+        vm.foo();
+        vm.bar();
+        vm.conflicting();
+
+
+    
+        
+
+
+
+
+
+
+
+        

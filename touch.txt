@@ -1,0 +1,65 @@
+1. webapp制作标准
+    1、自适应手机端任何尺寸设备
+    2、多平台ui表现一致
+    3、完美适配不同设备浏览器
+2.viewport/meta
+    <meta name="viewport" content="width=device-width,minimum-scale=0.5,
+    maximum-scale=1.0,initial-scale=1.0,user-scalable=no" />
+        width:可视区域的宽度，值可为数字或关键词device-width
+        initial-scale - 初始的缩放比例
+        minimum-scale - 允许用户缩放到的最小比例
+        maximum-scale - 允许用户缩放到的最大比例
+        user-scalable - 用户是否可以手动缩放
+        声明手机端之后，所有元素按照手机端尺寸缩放，浏览器解析成手机设备，采用谷歌虚拟机测试需要刷新，不刷新则是按照pc端解析
+3.制作手机端方法
+    1、百分比自适应
+    2.、弹性布局自适应 
+    3、rem自适应
+    4、js控制自适应（正常布局）
+    5、phonegap、ionic框架实现 
+4. js自适应任何设备屏幕
+    unction bodyScale(){
+        var devicewidth=document.documentElement.clientWidth;
+            var scale=devicewidth/640;
+            document.body.style.zoom=scale;
+    }
+    window.onload=window.onresize=function(){
+        bodyScale();
+    }
+            document.body.style.zoom中zoom是设置或检索对象的缩放比例
+5. 触屏设备上的click问题
+    PC页面的点击事件常用click，触屏设备上click会有200毫秒左右的延时，延时效果比较明显，用户体验比较差。
+    解决办法：
+        借助zepto的另一个模块touch.js。能够实现无延迟的点击效果
+    Zepto中默认不包含touch.js部分，需要去github上下载
+    此外touch.js还实现了长按、双击、上下左右滑动等手势，使用请参考API文档
+6. 什么是Zepto
+    Zepto是一个轻量级的针对现代高级浏览器的JavaScript库， 它与jquery有着类似的api。 如果你会用jquery，那么你也会用zepto。
+    Zepto的一些可选功能是专门针对移动端浏览器的，因为它的最初目标在移动端提供一个精简的类似jquery的js库。
+    Zepto小巧，移动端性能优越，在目前所有仿jQuery（包括jQuery本身）类库中名列前茅
+    百度的GMU和淘宝的kissy mobile都用到了zepto......
+7. vue－tap事件
+    Vue中直接使用tap事件：https://github.com/MeCKodo/vue-tap
+    npm  i v-tap -D
+    Main.js中引入 import vueTap from ‘v-tap’; Vue.use(vueTap);
+    使用 <button v-tap="{methods:tap,index:'hello'}">vtap</button>
+    Methods 函数名  eg：index为传参
+8. 第三方平台
+    Bshare http://www.bshare.cn/
+    QQ通讯平台  互联商家 https://connect.qq.com/intro/wpa
+9.  Vue分享插件
+    npm install vue-social-share –g
+    import Share from 'vue-social-share'
+    import 'vue-social-share/dist/client.css';
+    Vue.use(Share)
+
+    Tips: 将插件依赖中的font字体文件放在项目中的static目录中，否则图标无法识别
+    如果图标么有完全展示，请删除禁用站点属性
+
+
+
+
+
+
+
+

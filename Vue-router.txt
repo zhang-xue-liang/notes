@@ -1,0 +1,87 @@
+1.路由
+    根据路由规则，展示不同的路由组件
+    .1 路由导航标签     原理：// a 标签的href属性
+        <router-link to="***" tag="***"></router-link>
+        1. to 属性值规定该标签指向的path路径
+        2. tag 属性值规定该标签转换后的标签名
+    .2 路由视图容器
+        <router-view></router-view>
+        规定了路由对应视图的展示区域
+2. 配置路由的步骤
+    .1 定义组件模板
+        <template id="home">
+            <div>
+                <h1>我是首页</h1>
+            </div>
+        </template>
+    .2 定义组件
+        var Home= {
+            template:"#home"
+        }
+    .3 定义路由规则
+        var routes = [                       // Path 属性 配置路由地址
+            {path:"/home",component:home},  // component 属性 配置该地址需要加载的组件视图
+            {path:"*",redirect:"/home"}     // 当path路径中没有上面定义的路径时，自动加载这个路径
+        ]
+    .4 实例化VueRouter
+        var  router=new VueRouter({     // router 老老实实的写这个名字
+            routes:routes               // VueRouter里面的属性名称不能变  routes 
+        })
+    .5 VueRouter挂载到Vue实例上面去
+        var app=new Vue({
+            router:router,
+            el:'#out'
+        })
+3. 路由间参数的传递
+    .1 parmas       //     hash路径
+        存储路径参数     :to:"/index/ + id"      // 导航标签的更改
+                        path："/index/:id"      // 路由规则的更改
+        获取  $route.params.id
+        通过params进行参数传递适用于传递的参数是单个数据
+    .2 query        // 原理：path路径的search参数
+        存储路径参数   :to:{name:"datail",query:{id:id}}    // 路由规则不需更改
+        获取   $route.query.id         
+4. 路由的嵌套
+    路由导航标签
+        <router-link to="/home">首页</router-link>
+        <router-link to=“/user”>用户</router-link>
+        <router-view></router-view>
+    子路由  // 子路由的视图容器在父路由的组件模板内定义
+        <template id="user">
+            <div>
+                <router-link :to={name:"username"}>去子路由</router-link>
+                <!--子路由视图显示的地方-->
+                <router-view></router-view>
+            </div>
+        </template>
+    子路由 路由规则的配置
+          {
+            path:'/user',component:User,
+            children:[   
+                {
+                    path:'/username',
+                    name: "username",      // 在router-link标签中，通过name属性值的匹配，实现导航标签内path路径和路由规则中path路径的高度一致
+                                                如果更改path路径，只需在路由规则中更改即可
+                    component:UserName   /*注意：子路由前面的斜杠*/
+
+                }
+            ]
+        }
+        嵌套路由里面，视图切换存在动态参数不能同步接收问题，通过watch检测路由参数更改
+            watch:{
+                '$route'(to,from){
+                }
+            }
+        子路由 重定向路径－－默认显示
+
+            {path:‘/about’,redirect:‘/about/0’}
+
+            意思：当路径为/about 时 自动指向 /about/0
+
+
+    
+
+
+
+
+
